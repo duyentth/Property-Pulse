@@ -1,23 +1,12 @@
 import PropertyCard from "@/components/PropertyCard";
 import axios from "axios";
-//import { fetchProperties } from "@/utils/requests";
+import { fetchProperties } from "@/utils/requests";
 
-const fetchProperties = async () => {
-  try {
-    const ret = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_DOMAIN}/properties`
-    );
-    if (ret.status !== 200) {
-      throw new Error("Failed to fetch");
-    }
-    return ret.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 const PropertiesPage = async () => {
   const properties = await fetchProperties();
-  //properties.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
+
+  //sort by Date
+  properties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   return (
     <section className="px-4 py-6">
       <div className="container-xl lg:container m-auto px-4 py-6">

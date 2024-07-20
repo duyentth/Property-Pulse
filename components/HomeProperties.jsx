@@ -1,33 +1,7 @@
 import PropertyCard from "./PropertyCard";
 import Link from "next/link";
-//import { fetchProperties } from "@/utils/requests";
-import axios from "axios";
+import { fetchProperties } from "@/utils/requests";
 
-// const fetchProperties = async () => {
-//   try {
-//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_DOMAIN}/properties`);
-//     if (!res.ok) {
-//       throw new Error("Failed to fetch data");
-//     }
-//     return res.json();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-const fetchProperties = async () => {
-  try {
-    const ret = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_DOMAIN}/properties`
-    );
-    if (ret.status !== 200) {
-      throw new Error("Failed to fetch");
-    }
-    return ret.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 const HomeProperties = async () => {
   const properties = await fetchProperties();
   const recentProperties = properties

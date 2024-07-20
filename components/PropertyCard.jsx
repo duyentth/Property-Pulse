@@ -27,6 +27,7 @@ const PropertyCard = ({ property }) => {
         height={0}
         width={0}
         sizes="100vw"
+        priority={true}
         alt=""
         className="w-full h-auto rounded-t-xl"
       />
@@ -63,12 +64,12 @@ const PropertyCard = ({ property }) => {
           )}
           {property.rates.monthly && (
             <p>
-              <FaMoneyBill className="inline mr-2" /> Weekly
+              <FaMoneyBill className="inline mr-2" /> Monthly
             </p>
           )}
           {property.rates.weekly && (
             <p>
-              <FaMoneyBill className="inline mr-2" /> Monthly
+              <FaMoneyBill className="inline mr-2" /> Weekly
             </p>
           )}
         </div>
