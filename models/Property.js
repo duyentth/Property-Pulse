@@ -32,7 +32,7 @@ const PropertySchema = new Schema(
         type: String,
       },
     },
-    bed: {
+    beds: {
       type: Number,
       required: true,
     },

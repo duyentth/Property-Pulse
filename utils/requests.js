@@ -9,7 +9,13 @@ const fetchProperties = async () => {
     if (!apiDomain) {
       return [];
     }
-    const ret = await axios.get(`${apiDomain}/properties`);
+    const ret = await axios.get(`${apiDomain}/properties`, {
+      // headers: {
+      //   "Cache-Control": "no-cache",
+      //   Pragma: "no-cache",
+      //   Expires: "0",
+      // },
+    });
     if (ret.status !== 200) {
       throw new Error("Failed to fetch");
     }

@@ -11,7 +11,6 @@ import { useEffect } from "react";
 
 const Navbar = () => {
   const { data: session } = useSession();
-  console.log("session:", session);
   const profileImage = session?.user?.image;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
