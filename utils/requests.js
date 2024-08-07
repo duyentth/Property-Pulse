@@ -10,11 +10,11 @@ const fetchProperties = async () => {
       return [];
     }
     const ret = await axios.get(`${apiDomain}/properties`, {
-      // headers: {
-      //   "Cache-Control": "no-cache",
-      //   Pragma: "no-cache",
-      //   Expires: "0",
-      // },
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
     });
     if (ret.status !== 200) {
       throw new Error("Failed to fetch");
@@ -43,4 +43,45 @@ const fetchProperty = async (id) => {
     return null;
   }
 };
-export { fetchProperties, fetchProperty };
+
+//fetch properties that was posted by a specific user
+const fetchPropertiesByUserId = async (userId) => {
+  try {
+    //Handle the case where the domain is not available yet
+    if (!apiDomain) {
+      return null;
+    }
+    const ret = await axios.get(`${apiDomain}/properties/user/${userId}`);
+    if (ret.status !== 200) {
+      throw new Error("Failed to fetch");
+    }
+    return ret.data;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const deletePropertyById = async (propertyId) => {
+  try {
+    //Handle the case where the domain is not available yet
+    if (!apiDomain) {
+      return null;
+    }
+    const ret = await axios.delete(`${apiDomain}/properties/${propertyId}`);
+    if (ret.status !== 200) {
+      throw new Error("Failed to delete property");
+    }
+    return ret.data;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export {
+  fetchProperties,
+  fetchProperty,
+  fetchPropertiesByUserId,
+  deletePropertyById,
+};

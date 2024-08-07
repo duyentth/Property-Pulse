@@ -1,33 +1,43 @@
-import Property from "@/models/Property";
-import connectDB from "@/config/database";
+"use server";
 import { getSessionUser } from "@/utils/getSessionUser";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import connectDB from "@/config/database";
+import Property from "@/models/Property";
 import cloudinary from "@/config/cloudinary";
 
-//GET /api/properties
-export const GET = async (request) => {
-  try {
-    await connectDB();
-
-    const properties = await Property.find({});
-
-    return new Response(JSON.stringify(properties), { status: 200 });
-  } catch (error) {
-    console.log(error);
-    return new Response("Something went wrong", { status: 500 });
-  }
-};
-
-//POST /api/properties
-export const POST = async (request) => {
+const updateProperty = async (propertyId, formData) => {
   const sessionUser = await getSessionUser();
   if (!sessionUser || !sessionUser.userId) {
     return new Response("Not authorized", { status: 401 });
   }
-  const owner = sessionUser.userId;
+  const userId = sessionUser.userId;
   try {
-    const formData = await request.formData();
+    await connectDB();
+    const currentProperty = await Property.findById(propertyId);
+    //verify ownership
+    if (currentProperty.owner.toString() !== userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+    //get new data from Form
     const amenities = formData.getAll("amenities");
     const images = formData.getAll("images").filter((img) => img.name !== "");
+
+    //delete all existing images from cloudinary if user uploads new images list
+    if (images[0].size !== 0) {
+      // extract public id's from image url in DB
+      const publicIds = currentProperty.images.map((imageUrl) => {
+        const parts = imageUrl.split("/");
+        return parts.at(-1).split(".").at(0);
+      });
+
+      // Delete images from Cloudinary
+      if (publicIds.length > 0) {
+        for (let publicId of publicIds) {
+          await cloudinary.uploader.destroy("propertypulse/" + publicId);
+        }
+      }
+    }
     const propertyData = {
       type: formData.get("type"),
       name: formData.get("name"),
@@ -53,9 +63,9 @@ export const POST = async (request) => {
         email: formData.get("seller_info.email"),
         phone: formData.get("seller_info.phone"),
       },
-      owner,
     };
-    // Upload image(s) to Cloudinary
+
+    //Upload image(s) to Cloudinary
     const imageUploadPromises = [];
 
     for (const image of images) {
@@ -81,15 +91,14 @@ export const POST = async (request) => {
       // Add uploaded images to the propertyData object
       propertyData.images = uploadedImages;
     }
-
-    await connectDB();
-    const newProperty = new Property(propertyData);
-    await newProperty.save();
-    return Response.redirect(
-      `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
+    const updatedProperty = await Property.findByIdAndUpdate(
+      propertyId,
+      propertyData
     );
   } catch (error) {
     console.log(error);
-    return new Response("Failed to add property", { status: 500 });
   }
+  revalidatePath("/", "layout");
+  redirect(`/properties/${propertyId}`);
 };
+export default updateProperty;
