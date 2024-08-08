@@ -1,9 +1,16 @@
 import PropertyCard from "@/components/PropertyCard";
-import axios from "axios";
-import { fetchProperties } from "@/utils/requests";
+import connectDB from "@/config/database";
+import Property from "@/models/Property";
+import Pagination from "@/components/Pagination";
 
-const PropertiesPage = async () => {
-  const properties = await fetchProperties();
+const PropertiesPage = async ({ searchParams: { page = 1, pageSize = 6 } }) => {
+  const skip = (page - 1) * pageSize;
+  await connectDB();
+  const total = await Property.countDocuments({});
+  const properties = await Property.find({}).skip(skip).limit(pageSize);
+
+  //calculate if pagination is needed
+  const showPagination = total > pageSize;
 
   //sort by Date
   properties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -18,6 +25,13 @@ const PropertiesPage = async () => {
               <PropertyCard key={property._id} property={property} />
             ))}
           </div>
+        )}
+        {showPagination && (
+          <Pagination
+            page={parseInt(page)}
+            pageSize={parseInt(pageSize)}
+            totalItems={total}
+          />
         )}
       </div>
     </section>
