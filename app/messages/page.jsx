@@ -5,7 +5,8 @@ import { convertToSerializeableObject } from "@/utils/convertToObject";
 import MessageCard from "@/components/MessageCard";
 
 const MessagesPage = async () => {
-  const { userId } = await getSessionUser();
+  const sessionUser = await getSessionUser();
+  const { userId } = sessionUser;
   await connectDB();
   const unreadMessagesDoc = await Message.find({
     recipient: userId,
